@@ -44,8 +44,9 @@ map:
     other: "#9aa0a6"
     ring: "#f5b301"
     accent: "#f5b301"
-  basemap: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-  basemap_attribution: "© CARTO, © OpenStreetMap contributors"
+  # OpenFreeMap: no API key, no registration (MIT; data © OpenStreetMap contributors)
+  basemap: "https://tiles.openfreemap.org/styles/dark"
+  basemap_attribution: "OpenFreeMap, © OpenMapTiles, © OpenStreetMap contributors"
   bounds: [[-89.5, 12.9], [-83.0, 17.5]]   # Honduras incl. Bay and Swan Islands
   credit: "Map and data curation: Yanira A. Rivera. Bee records licensed CC BY-NC 4.0 (the GBIF download's licence). Interactive companion built with AI-assisted code."
 

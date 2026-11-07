@@ -11,6 +11,8 @@ Version lives in `gbifc/__init__.py`; printed by `python build.py --version` and
 - `package_data.py`: writes a map's data package for Zenodo (records.csv, source_datasets.csv,
   taxa_status.csv, area table, package_provenance.json), outside the repository.
 - Bees: credit line states the records' licence (CC BY-NC 4.0).
+- Base map: OpenFreeMap Dark (no API key, no registration) instead of CARTO Dark Matter, whose
+  base maps now require a personal API key that should not live in a public code repository.
 - MIT licence and CITATION.cff (for citing, and for Zenodo's GitHub release archiving).
 
 ## 0.4.0 — 2026-11-05
