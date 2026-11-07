@@ -3,9 +3,10 @@
 
 run:
   output_dir: outputs/bees
-  # Optional: copy the finished page into the site folder, a separate repo published with
-  # GitHub Pages. Relative to where you run build.py. Remove the line to build without publishing.
-  publish_dir: ../SDG15-DONT-TELL-THE-BEES
+  # Optional: copy the finished page into its folder, served by GitHub Pages at
+  # https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/bees/ (created on the first build).
+  # Remove the line to build without publishing.
+  publish_dir: bees
 
 gbif:
   # GBIF "simple" download (tab-separated, even when named .csv) or a DwC-A occurrence.txt

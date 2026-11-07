@@ -2,6 +2,9 @@
 
 run:
   output_dir: outputs/birds
+  # Each map has its own folder (bees/, birds/); the birds are served by GitHub Pages at
+  # https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/birds/ (created on the first build).
+  publish_dir: birds
 
 gbif:
   file: data/0021590-260928105237408.csv
@@ -85,4 +88,4 @@ overlay:
     default_on: false
     note: "Single 10 m cells from a model: a tall building or tower can look like a tree. Check on satellite imagery or in person."
   sample_radius_m: 50                    # popups show canopy at the record and the tallest within 50 m
-  source: "Meta and World Resources Institute (WRI) (2026), Version 2 High Resolution Canopy Height Maps (CHMv2), resampled to 10 m. Source imagery © 2016 Vantor. CC BY 4.0. Accessed November 2026 from https://registry.opendata.aws/dataforgood-fb-forestsv2. Paper: CHMv2: Improvements in Global Canopy Height Mapping using DINOv3, arXiv:2603.06382"
+  source: "Meta and World Resources Institute (WRI) (2026), Version 2 High Resolution Canopy Height Maps (CHMv2), clipped to Tegucigalpa and resampled to 10 m by Yanira A. Rivera. Source imagery © 2016 Vantor. CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Accessed November 2026 from https://registry.opendata.aws/dataforgood-fb-forestsv2. Paper: CHMv2: Improvements in Global Canopy Height Mapping using DINOv3, arXiv:2603.06382"

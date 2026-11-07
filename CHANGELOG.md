@@ -5,9 +5,12 @@ Version lives in `gbifc/__init__.py`; printed by `python build.py --version` and
 
 ## 0.4.1 — 2026-11-07
 - Code, sites and data kept apart: `data/` is ignored by Git (`data/README.md` says where each
-  input comes from); optional `run.publish_dir` copies the finished page into a site folder (its
-  own GitHub Pages repo) as index.html with provenance.json and .nojekyll. Bees publish to
-  `../SDG15-DONT-TELL-THE-BEES`.
+  input comes from); optional `run.publish_dir` copies the finished page into a site folder (e.g.
+  GitHub Pages) as index.html with provenance.json and .nojekyll. One folder per map: bees publish to
+  `bees/` (https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/bees/), birds to `birds/`; the
+  publish folder is created if missing. A hand-written front page at the root links to each map.
+- Birds: canopy credit says what was changed (clipped to Tegucigalpa, resampled to 10 m) and links
+  the CC BY 4.0 licence.
 - `package_data.py`: writes a map's data package for Zenodo (records.csv, source_datasets.csv,
   taxa_status.csv, area table, package_provenance.json), outside the repository.
 - Bees: credit line states the records' licence (CC BY-NC 4.0).

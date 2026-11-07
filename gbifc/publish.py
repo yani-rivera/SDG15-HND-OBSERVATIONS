@@ -12,9 +12,7 @@ SITE_FILES = {"map.html": "index.html", "provenance.json": "provenance.json"}
 
 def publish(run_dir: Path, site_dir: str | Path) -> Path:
     site = Path(site_dir).expanduser()
-    if not site.is_dir():
-        raise FileNotFoundError(
-            f"publish_dir {site} does not exist; create the site folder (or clone its repo) first")
+    site.mkdir(parents=True, exist_ok=True)   # e.g. birds/ on the first build
     for src, dst in SITE_FILES.items():
         shutil.copy(Path(run_dir) / src, site / dst)
     (site / ".nojekyll").touch()   # GitHub Pages: serve files as they are
