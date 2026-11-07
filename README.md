@@ -14,10 +14,9 @@ Interactive companion maps from **any GBIF occurrence download**. One config per
 
 - `config/bees.yaml`: *Don't Tell the Bees* (#30DayMapChallenge 2026, Day 1), with native status
   and foraging rings.
-- `config/birds.yaml`: *What I Still Like to Hear* (Day 11, Sound), Tegucigalpa's parakeets,
-  zanates, woodpeckers, owls and doves, with an effort-corrected seasonality view.
 
-<<<<<<< HEAD
+
+## Ai assistance
 The challenge entries are the hand-made posters; these pages were built with AI-assisted code and
 say so.
 =======
