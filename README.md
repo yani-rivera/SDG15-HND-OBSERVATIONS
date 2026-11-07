@@ -6,7 +6,7 @@ empty area means unrecorded, not absent.
 
 **Maps:** https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/
 - *Don't Tell the Bees*: https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/bees/
-- *What I Still Like to Hear* (Tegucigalpa birds): `/birds/`, not published yet
+
 
 **Version 0.4.1** (2026-11-07) · see [CHANGELOG.md](CHANGELOG.md) · `python build.py --version`
 
