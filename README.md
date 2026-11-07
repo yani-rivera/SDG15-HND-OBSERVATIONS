@@ -13,7 +13,7 @@ Companion to the poster *Don't Tell the Bees*, #30DayMapChallenge 2026, Day 1 (P
 `index.html` and `provenance.json` (added by the first build) are written by the builder, not edited by hand. To change the
 map, change the code or its config and rebuild:
 
-- **Code:** [SDG15-HND-OBSERVATIONS](https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/), config
+- **Code:** [SDG15-HND-OBSERVATIONS](https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS), config
   `config/bees.yaml`. `provenance.json` here records the exact code version, config hash and input
   SHA-256 used for this page.
 - **Data:** GBIF.org (27 October 2026) GBIF Occurrence Download
