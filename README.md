@@ -17,8 +17,19 @@ Interactive companion maps from **any GBIF occurrence download**. One config per
 - `config/birds.yaml`: *What I Still Like to Hear* (Day 11, Sound), Tegucigalpa's parakeets,
   zanates, woodpeckers, owls and doves, with an effort-corrected seasonality view.
 
+<<<<<<< HEAD
 The challenge entries are the hand-made posters; these pages were built with AI-assisted code and
 say so.
+=======
+- **Code:** [SDG15-HND-OBSERVATIONS](https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS), config
+  `config/bees.yaml`. `provenance.json` here records the exact code version, config hash and input
+  SHA-256 used for this page.
+- **Data:** GBIF.org (27 October 2026) GBIF Occurrence Download
+  https://doi.org/10.15468/dl.2kgdqn (3,491 records from 43 datasets). Honey: Instituto Nacional
+  de Estadística con información del Censo Agropecuario Nacional (CAN), año agrícola 2023-2024.
+  Departments: SINIT (2016) via OCHA HDX. Records and honey table archived with notes on Zenodo:
+  *[data DOI, added once published]*.
+>>>>>>> a3966ee139d2df4a753e86656de7dc7ce7516d15
 
 ## Three separate parts
 
