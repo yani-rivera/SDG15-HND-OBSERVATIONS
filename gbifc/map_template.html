@@ -4,8 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>__TITLE__</title>
-<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"
+      integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"
+        integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
 <style>
   :root { --bg:#141518; --panel:rgba(20,21,24,.95); --ink:#f2eee6; --muted:#a8a29a; --line:#2e3036; --gold:#f5b301; }
   html, body { margin:0; height:100%; background:var(--bg); color:var(--ink);
@@ -512,8 +514,8 @@ map.on("load", () => {
   }
   map.on("click", "pts", e => {
     const r = R[e.features[0].properties.i];
-    const links = [`<a href="https://www.gbif.org/occurrence/${esc(r[GBIF])}" target="_blank" rel="noopener">GBIF record</a>`];
-    if (r[URL]) links.push(`<a href="${esc(r[URL])}" target="_blank" rel="noopener">original</a>`);
+    const links = [`<a href="https://www.gbif.org/occurrence/${encodeURIComponent(r[GBIF])}" target="_blank" rel="noopener">GBIF record</a>`];
+    if (/^https?:\/\//i.test(r[URL] || "")) links.push(`<a href="${esc(r[URL])}" target="_blank" rel="noopener">original</a>`);
     new maplibregl.Popup({ maxWidth: "300px" }).setLngLat(e.lngLat).setHTML(
       `<div class="pop"><b><i>${esc(D.taxa[r[TAX]])}</i></b><br>
        <span class="k">${esc(S.groups.length ? (S.groups[r[GRP]] || {}).name || "" : D.status[r[STAT]])}</span><br>

@@ -14,6 +14,9 @@ Version lives in `gbifc/__init__.py`; printed by `python build.py --version` and
 - Base map: OpenFreeMap Dark (no API key, no registration) instead of CARTO Dark Matter, whose
   base maps now require a personal API key that should not live in a public code repository.
 - MIT licence and CITATION.cff (for citing, and for Zenodo's GitHub release archiving).
+- Security: MapLibre script and stylesheet loaded with Subresource Integrity (sha384), so a
+  modified file from the CDN is refused; "original record" links only for http(s) URLs (checked in
+  the builder and again in the page); GBIF ids URL-encoded in links. SECURITY.md added.
 
 ## 0.4.0 — 2026-11-05
 - Optional raster overlay (`overlay:`): e.g. tree canopy height, reprojected to Web Mercator

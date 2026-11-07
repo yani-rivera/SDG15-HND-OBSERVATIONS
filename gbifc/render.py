@@ -59,7 +59,7 @@ def pack(records: list[dict], cfg: dict) -> dict:
             r["gbifID"],
             (r["eventDate"] or "")[:10],
             people(r["recordedBy"] or ""),
-            r["occurrenceID"] if r["occurrenceID"].startswith("http") else "",
+            r["occurrenceID"] if r["occurrenceID"].lower().startswith(("http://", "https://")) else "",
             r["uncertainty_m"],
             place(where[:120]),
             r.get("group"),
