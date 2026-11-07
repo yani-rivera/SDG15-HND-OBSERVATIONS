@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "SDG15-HND-OBSERVATIONS: interactive maps of biodiversity observations in Honduras from GBIF downloads (gbif_companion)"
+type: software
+version: 0.4.1
+date-released: 2026-11-07
+license: MIT
+authors:
+  - family-names: Rivera
+    given-names: Yanira A.
+    orcid: "https://orcid.org/0000-0003-3309-5256"
+keywords:
+  - GBIF
+  - biodiversity observations
+  - interactive map
+  - MapLibre
+  - Honduras
+  - bees
+  - SDG 15
+  - pollinators
+  - provenance

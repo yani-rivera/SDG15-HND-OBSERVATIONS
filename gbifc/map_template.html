@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  :root { --bg:#141518; --panel:rgba(20,21,24,.95); --ink:#f2eee6; --muted:#a8a29a; --line:#2e3036; --gold:#f5b301; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink);
+               font:13px/1.45 -apple-system, system-ui, "Segoe UI", sans-serif; }
+  #map { position:absolute; inset:0; }
+  .panel { position:absolute; top:14px; left:14px; width:340px; max-height:calc(100% - 28px); overflow:auto;
+           background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  h1 { font-size:21px; margin:0 0 4px; color:var(--gold); letter-spacing:.01em; }
+  .sub { color:var(--muted); margin:0 0 10px; }
+  .row { margin:12px 0; }
+  .lbl { font-weight:600; margin-bottom:5px; display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .lbl small { font-weight:400; color:var(--muted); }
+  .seg { display:flex; flex-wrap:wrap; gap:4px; }
+  .seg button { background:#202227; color:var(--ink); border:1px solid var(--line); border-radius:14px;
+                padding:3px 10px; font:inherit; font-size:12px; cursor:pointer; }
+  .seg button[aria-pressed=true] { background:var(--gold); color:#141518; border-color:var(--gold); }
+  .checks label { margin-right:12px; font-size:12px; cursor:pointer; }
+  .legend { display:flex; flex-wrap:wrap; gap:4px 12px; font-size:12px; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+  table.top { width:100%; border-collapse:collapse; font-size:12px; }
+  table.top th { text-align:left; color:var(--muted); font-weight:500; padding:2px 4px; border-bottom:1px solid var(--line); }
+  table.top td { padding:3px 4px; border-bottom:1px solid #1d1f23; }
+  table.top td.n { text-align:right; font-variant-numeric:tabular-nums; }
+  table.top tr.sp { cursor:pointer; } table.top tr.sp:hover td { background:#1f2126; }
+  table.top tr.sel td { background:#2a2618; }
+  .note { color:var(--muted); font-size:11.5px; margin:4px 0; }
+  #lolli { width:100%; height:120px; display:block; }
+  #tip { position:fixed; pointer-events:none; background:#0d0e10; color:var(--ink); border:1px solid var(--line);
+         border-radius:6px; padding:5px 8px; font-size:12px; display:none; z-index:10; max-width:240px; }
+  .clear { background:none; border:none; color:var(--gold); cursor:pointer; font:inherit; font-size:12px; padding:0; }
+  .cta { border-left:3px solid var(--gold); padding:4px 8px; margin:12px 0 4px; font-size:12px; }
+  details.src { color:var(--muted); font-size:11px; margin-top:10px; }
+  details.src summary { cursor:pointer; color:var(--ink); font-weight:600; }
+  details.src ul { padding-left:16px; margin:4px 0; } details.src a { color:inherit; }
+  .maplibregl-popup-content { background:#1a1b1f; color:var(--ink); border:1px solid var(--line); border-radius:8px; font-size:12.5px; }
+  .maplibregl-popup-tip { border-top-color:#1a1b1f !important; border-bottom-color:#1a1b1f !important; }
+  .maplibregl-popup-close-button { color:var(--muted); font-size:18px; }
+  .pop .k { color:var(--muted); } .pop a { color:var(--gold); }
+  .status { color:var(--muted); font-size:11px; font-style:italic; }
+  @media (max-width:640px) { .panel { top:auto; bottom:10px; left:10px; right:10px; width:auto; max-height:48%; } }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="tip"></div>
+<div class="panel">
+  <h1>__TITLE__</h1>
+  <p class="sub">__SUBTITLE__</p>
+  <p class="note" id="dataNote">__NOTE__</p>
+
+  <div class="row" id="groupRow" hidden>
+    <div class="lbl"><span>Show</span></div>
+    <div class="seg" id="groupSeg"></div>
+    <div id="groupNote" style="font-size:12.5px;line-height:1.45;margin-top:8px;color:var(--ink)"></div>
+  </div>
+
+  <div class="row">
+    <div class="lbl"><span>Period</span><small id="periodNote"></small></div>
+    <div class="seg" id="period"></div>
+  </div>
+
+  <div class="row">
+    <div class="lbl"><span id="lolliTitle">Records over time</span><small id="lolliHint">click a stem to filter</small></div>
+    <div class="seg" id="timeMode" style="margin-bottom:6px"></div>
+    <svg id="lolli" role="img" aria-label="Records per year"></svg>
+  </div>
+
+  <div class="row">
+    <div class="lbl"><span>Most recorded species</span><button class="clear" id="clearSp" hidden>show all species</button></div>
+    <table class="top" id="top"></table>
+    <p class="note" id="topNote"></p>
+  </div>
+
+  <div class="row">
+    <div class="lbl"><span>Colour by</span></div>
+    <div class="seg" id="colorBy"></div>
+    <div class="legend" id="legend" style="margin-top:6px"></div>
+  </div>
+
+  <div class="row" id="overRow" hidden>
+    <div class="lbl"><label style="cursor:pointer"><input type="checkbox" id="overToggle"> <span id="overTitle"></span></label></div>
+    <div id="overLegend" style="font-size:11.5px;color:var(--muted)"></div>
+    <div id="hlRow" hidden style="margin-top:8px;font-size:12.5px">
+      <label style="cursor:pointer"><input type="checkbox" id="hlToggle"> <span id="hlDot" class="dot"></span><span id="hlTitle"></span></label>
+      <div id="hlNote" class="k" style="font-size:11px;margin-top:3px"></div>
+    </div>
+    <div id="overStat" style="font-size:12px;margin-top:6px"></div>
+  </div>
+
+  <div class="row" id="areaRow" hidden>
+    <div class="lbl"><span id="areaTitle"></span></div>
+    <div class="seg" id="areaSeg"></div>
+    <div class="legend" id="areaLegend" style="margin-top:6px"></div>
+    <p class="note" id="areaNote"></p>
+  </div>
+
+  <div class="row checks" id="ringBox"></div>
+
+  <p class="note" id="counts"></p>
+  <div class="cta">__CTA__</div>
+  <p class="status" id="status">Loading…</p>
+
+  <details class="src">
+    <summary>Sources</summary>
+    <ul>__SOURCES__</ul>
+  </details>
+</div>
+
+<script type="application/json" id="d-settings">__SETTINGS__</script>
+<script type="application/json" id="d-data">__DATA__</script>
+<script type="application/json" id="d-summary">__SUMMARY__</script>
+<script type="application/json" id="d-areas">__AREAS__</script>
+<script type="application/json" id="d-overlay">__OVERLAY_URL__</script>
+<script>
+const statusEl = document.getElementById("status");
+const showError = e => { statusEl.textContent = "Map error: " + (e && e.message || e); statusEl.style.color = "#e88"; };
+window.addEventListener("error", ev => showError(ev.error || ev.message));
+try {
+const read = id => JSON.parse(document.getElementById(id).textContent);
+const S = read("d-settings"), D = read("d-data"), SUM = read("d-summary"), AREAS = read("d-areas");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => Number(n).toLocaleString("en-US");
+// row fields
+const LAT=0, LON=1, YEAR=2, MONTH=3, TAX=4, STAT=5, BASIS=6, SRC=7, GBIF=8, DATE=9, WHO=10, URL=11, UNC=12, PLACE=13, GRP=14, OHERE=15, ONEAR=16;
+const R = D.rows;
+const isIntro = s => S.introducedWords.some(w => (D.status[s] || "").startsWith(w));
+let year = S.defaultYear, taxon = null, group = null, timeMode = "years";
+let colorBy = S.groups.length ? "group" : (S.hasStatus ? "status" : "basis");
+const hasTotals = Object.keys(S.monthTotals || {}).length > 0;
+if (!document.getElementById("dataNote").textContent.trim()) document.getElementById("dataNote").remove();
+
+// ---------- period buttons ----------
+const periodBox = document.getElementById("period");
+function periodButtons() {
+  const opts = [["all", "All years"], ...S.quickYears.map(y => [String(y), String(y)])];
+  if (year != null && !S.quickYears.includes(year)) opts.push([String(year), String(year)]);
+  periodBox.innerHTML = "";
+  opts.forEach(([k, label]) => {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.setAttribute("aria-pressed", (k === "all" && year == null) || k === String(year));
+    b.onclick = () => { year = k === "all" ? null : +k; update(); };
+    periodBox.appendChild(b);
+  });
+}
+
+// ---------- selection ----------
+const inPeriod = r => year == null || r[YEAR] === year;
+const inGroup = r => group == null || r[GRP] === group;
+const inTaxon = r => taxon == null || r[TAX] === taxon;
+const selected = () => R.filter(r => inPeriod(r) && inGroup(r) && inTaxon(r));
+
+// ---------- group buttons ----------
+if (S.groups.length) {
+  document.getElementById("groupRow").hidden = false;
+  const box = document.getElementById("groupSeg");
+  [[null, "All"], ...S.groups.map((g, i) => [i, g.name])].forEach(([k, label]) => {
+    const b = document.createElement("button"); b.textContent = label; b.dataset.k = k ?? "";
+    b.onclick = () => { group = k; taxon = null; update(); }; box.appendChild(b);
+  });
+}
+// ---------- time mode ----------
+const tmBox = document.getElementById("timeMode");
+[["years", "By year"], ["months", "By month (all years)"]].forEach(([k, l]) => {
+  const b = document.createElement("button"); b.textContent = l; b.dataset.k = k;
+  b.onclick = () => { timeMode = k; update(); }; tmBox.appendChild(b);
+});
+
+// ---------- lollipop ----------
+const svg = document.getElementById("lolli"), tip = document.getElementById("tip");
+function drawLollipop() {
+  [...tmBox.children].forEach(b => b.setAttribute("aria-pressed", b.dataset.k === timeMode));
+  let pool = R.filter(r => inGroup(r) && inTaxon(r));
+  const yearsAll = [...new Set(pool.filter(r => r[YEAR] != null).map(r => r[YEAR]))];
+  const byMonth = timeMode === "months" || yearsAll.length === 1;
+  if (byMonth && year != null) pool = pool.filter(r => r[YEAR] === year);
+  const dated = pool.filter(r => (byMonth ? r[MONTH] : r[YEAR]) != null);
+  const years = [...new Set(dated.map(r => r[YEAR]))];
+  // share of ALL records that month (pooled years): corrects for when observers go out
+  const useShare = byMonth && hasTotals && year == null && (group != null || taxon != null);
+  const key = r => byMonth ? r[MONTH] : r[YEAR];
+  const counts = new Map(), srcs = new Map();
+  dated.forEach(r => {
+    const k = key(r); if (k == null) return;
+    counts.set(k, (counts.get(k) || 0) + 1);
+    const m = srcs.get(k) || new Map(); m.set(r[SRC], (m.get(r[SRC]) || 0) + 1); srcs.set(k, m);
+  });
+  const W = svg.clientWidth || 300, H = 120, pad = { l: 36, r: 6, t: 8, b: 18 };
+  const ks = [...counts.keys()];
+  const x0 = byMonth ? 1 : Math.min(...ks), x1 = byMonth ? 12 : Math.max(...ks);
+  const val = (k, n) => useShare ? n / (S.monthTotals[k] || S.monthTotals[String(k)] || Infinity) : n;
+  const maxN = Math.max(useShare ? 1e-9 : 1, ...[...counts.entries()].map(([k, n]) => val(k, n)));
+  const fmtV = v => useShare ? (v * 100).toFixed(1) + "%" : fmt(v);
+  const sx = k => pad.l + (x1 === x0 ? 0.5 : (k - x0) / (x1 - x0)) * (W - pad.l - pad.r);
+  const sy = n => H - pad.b - (n / maxN) * (H - pad.t - pad.b);
+  const gold = S.colors.accent;
+  let h = `<line x1="${pad.l}" x2="${W - pad.r}" y1="${H - pad.b}" y2="${H - pad.b}" stroke="#3a3c42"/>`;
+  h += `<text x="${pad.l - 4}" y="${sy(maxN) + 4}" fill="#a8a29a" font-size="10" text-anchor="end">${fmtV(maxN)}</text>`;
+  const ticks = byMonth ? [1, 4, 7, 10] : [x0, Math.round((x0 + x1) / 2), x1];
+  const mname = m => ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m - 1];
+  ticks.forEach((t, i) => h += `<text x="${sx(t)}" y="${H - 4}" fill="#a8a29a" font-size="10" text-anchor="${i === 0 ? "start" : i === ticks.length - 1 ? "end" : "middle"}">${byMonth ? mname(t) : t}</text>`);
+  [...counts.entries()].sort((a, b) => a[0] - b[0]).forEach(([k, n]) => {
+    const on = !byMonth && year === k;
+    const top = [...srcs.get(k).entries()].sort((a, b) => b[1] - a[1])[0];
+    const v = val(k, n);
+    const label = `${byMonth ? mname(k) + (year != null ? " " + year : years.length === 1 ? " " + years[0] : " (all years)") : k}: ${fmt(n)} record${n > 1 ? "s" : ""}` +
+                  (useShare ? ` = ${fmtV(v)} of ${esc(S.totalsLabel)} that month` : "") +
+                  `<br><span style="color:#a8a29a">top source: ${esc(D.source[top[0]])} (${fmt(top[1])})</span>`;
+    h += `<g class="stem" data-k="${k}" data-label="${esc(label)}" style="cursor:${byMonth ? "default" : "pointer"}">
+            <line x1="${sx(k)}" x2="${sx(k)}" y1="${H - pad.b}" y2="${sy(v)}" stroke="${on ? "#fff" : gold}" stroke-width="${on ? 2 : 1.2}" opacity="${year == null || on || byMonth ? 1 : 0.35}"/>
+            <circle cx="${sx(k)}" cy="${sy(v)}" r="${on ? 3.6 : 2.6}" fill="${on ? "#fff" : gold}" opacity="${year == null || on || byMonth ? 1 : 0.35}"/>
+            <rect x="${sx(k) - 4}" y="${pad.t}" width="8" height="${H - pad.t - pad.b}" fill="transparent"/></g>`;
+  });
+  svg.innerHTML = h;
+  svg.setAttribute("aria-label", byMonth ? "Records per month" : "Records per year");
+  svg.querySelectorAll(".stem").forEach(g => {
+    g.onmousemove = e => { tip.innerHTML = g.dataset.label; tip.style.display = "block";
+                           tip.style.left = (e.clientX + 12) + "px"; tip.style.top = (e.clientY - 10) + "px"; };
+    g.onmouseleave = () => tip.style.display = "none";
+    if (!byMonth) g.onclick = () => { const k = +g.dataset.k; year = year === k ? null : k; update(); };
+  });
+  document.getElementById("lolliTitle").textContent = useShare
+    ? `Share of ${S.totalsLabel}, by month` : (byMonth ? "Records by month" : "Records over time");
+  document.getElementById("lolliHint").textContent = byMonth
+    ? (useShare ? "corrects for when people go out" : (hasTotals && year == null ? "pick a group for shares" : ""))
+    : "click a stem to filter";
+  const undated = pool.length - dated.length;
+  document.getElementById("periodNote").textContent = undated ? `${fmt(undated)} records have no ${byMonth ? "month" : "year"}` : "";
+}
+
+// ---------- top table ----------
+function drawTop() {
+  const pool = R.filter(r => inPeriod(r) && inGroup(r));
+  const c = new Map(); pool.forEach(r => c.set(r[TAX], (c.get(r[TAX]) || 0) + 1));
+  const rows = [...c.entries()].sort((a, b) => b[1] - a[1] || D.taxa[a[0]].localeCompare(D.taxa[b[0]]));
+  const top = rows.slice(0, S.topN);
+  const statusOf = t => { const r = pool.find(x => x[TAX] === t); if (!r) return "";
+    return S.groups.length ? (S.groups[r[GRP]] || {}).name || "" : D.status[r[STAT]]; };
+  const foot = [];
+  let h = `<tr><th>Species</th><th style="text-align:right">Records</th><th>${S.groups.length ? "Group" : "Status"}</th></tr>`;
+  top.forEach(([t, n]) => {
+    const name = D.taxa[t], fn = S.footnotes[name];
+    let st = esc(statusOf(t)); if (fn) { st += "*"; foot.push(`*${esc(fn)}: ${esc(name)}`); }
+    h += `<tr class="sp${taxon === t ? " sel" : ""}" data-t="${t}"><td><i>${esc(name)}</i></td><td class="n">${fmt(n)}</td><td>${st}</td></tr>`;
+  });
+  document.getElementById("top").innerHTML = h;
+  document.querySelectorAll("#top tr.sp").forEach(tr => tr.onclick = () => { const t = +tr.dataset.t; taxon = taxon === t ? null : t; update(); });
+  const last = top.length ? top[top.length - 1][1] : 0;
+  const ties = rows.slice(S.topN).filter(([, n]) => n === last).length;
+  const notes = [...foot];
+  if (ties) notes.push(`${ties} more species also with ${last} record${last > 1 ? "s" : ""} not shown.`);
+  notes.push(`${fmt(rows.length)} ${rows.length === 1 ? "taxon" : "taxa"} in ${year ?? "all years"}. Click a species to map it.`);
+  document.getElementById("topNote").innerHTML = notes.join("<br>");
+  document.getElementById("clearSp").hidden = taxon == null;
+}
+document.getElementById("clearSp").onclick = () => { taxon = null; update(); };
+
+// ---------- colour + legend ----------
+const C = S.colors;
+const basisPalette = ["#f5b301", "#7cc6fe", "#e86f5a", "#b48ef0", "#9aa0a6"];
+const colorBox = document.getElementById("colorBy");
+[...(S.groups.length ? [["group", "Group"]] : []), ...(S.hasStatus ? [["status", "Native status"]] : []),
+ ["basis", "Record type"]].forEach(([k, l]) => {
+  const b = document.createElement("button"); b.textContent = l; b.dataset.k = k;
+  b.onclick = () => { colorBy = k; update(); }; colorBox.appendChild(b);
+});
+const prettyBasis = s => s.toLowerCase().replace(/_/g, " ").replace(/^./, c => c.toUpperCase());
+function colorExpr() {
+  if (colorBy === "group") {
+    const m = ["match", ["get", "g"]]; S.groups.forEach((g, i) => m.push(i, g.color)); m.push(C.other); return m;
+  }
+  if (colorBy === "basis") {
+    const m = ["match", ["get", "b"]]; D.basis.forEach((_, i) => m.push(i, basisPalette[i % basisPalette.length]));
+    m.push(C.other); return m;
+  }
+  const intro = D.status.map((s, i) => i).filter(isIntro);
+  const unknown = D.status.indexOf("Unknown");
+  return ["case", ["in", ["get", "s"], ["literal", intro]], C.introduced,
+                  ["==", ["get", "s"], unknown], C.other, C.native];
+}
+function drawLegend() {
+  [...colorBox.children].forEach(b => b.setAttribute("aria-pressed", b.dataset.k === colorBy));
+  const items = colorBy === "group" ? S.groups.map(g => [g.color, g.name]) : colorBy === "basis"
+    ? D.basis.map((b, i) => [basisPalette[i % basisPalette.length], prettyBasis(b)])
+    : [[C.native, "Native"], [C.introduced, D.status.find((s, i) => isIntro(i)) || "Introduced"], [C.other, "Not identified to genus"]];
+  document.getElementById("legend").innerHTML = items.map(([c, l]) => `<span><span class="dot" style="background:${c}"></span>${esc(l)}</span>`).join("");
+}
+
+// ---------- rings ----------
+const ringBox = document.getElementById("ringBox");
+const ringOn = Object.fromEntries(S.rings.map(k => [k, false]));
+if (S.rings.length) {
+  ringBox.innerHTML = `<div class="lbl"><span>Foraging rings</span><small>appear from zoom ${S.ringsMinZoom}</small></div>` +
+    S.rings.map(k => `<label><input type="checkbox" data-k="${k}"> ${k} km</label>`).join("") +
+    `<p class="note">Illustrative: honey bees often fly 3 km or more; many native bees, like stingless bees, stay much closer.</p>`;
+  ringBox.querySelectorAll("input").forEach(i => i.onchange = () => {
+    ringOn[i.dataset.k] = i.checked;
+    if (map.getLayer("ring" + i.dataset.k)) map.setLayoutProperty("ring" + i.dataset.k, "visibility", i.checked ? "visible" : "none");
+  });
+}
+// pixel radius for a ground distance: m * 2^z / (78271.517 * cos(lat))
+const ringRadius = km => ["interpolate", ["exponential", 2], ["zoom"],
+  0, ["/", km * 1000, ["*", 78271.517, ["cos", ["*", ["get", "lat"], Math.PI / 180]]]],
+  22, ["/", km * 1000 * 4194304, ["*", 78271.517, ["cos", ["*", ["get", "lat"], Math.PI / 180]]]]];
+
+// ---------- raster overlay (e.g. tree canopy) ----------
+const O = S.overlay, OURL = read("d-overlay");
+let overOn = O ? O.defaultOn : false;
+if (O) {
+  document.getElementById("overRow").hidden = false;
+  document.getElementById("overTitle").textContent = O.title;
+  const tg = document.getElementById("overToggle"); tg.checked = overOn;
+  tg.onchange = () => { overOn = tg.checked;
+    if (map.getLayer("overlay")) map.setLayoutProperty("overlay", "visibility", overOn ? "visible" : "none"); };
+  document.getElementById("overLegend").innerHTML =
+    `<div style="height:8px;border-radius:4px;margin:4px 0 2px;background:linear-gradient(90deg,${O.colors.join(",")})"></div>` +
+    `<div style="display:flex;justify-content:space-between"><span>${O.minValue} ${esc(O.unit)}</span><span>${O.stretch[1]}+ ${esc(O.unit)}</span></div>`;
+}
+
+// ---------- area layer (e.g. honey production) ----------
+const A = S.areas;
+let areaVar = A ? A.default : null;
+const varOf = k => A.variables.find(v => v.key === k);
+function areaFill() {
+  const v = varOf(areaVar), step = ["step", ["get", v.key], A.colors[0]];
+  v.breaks.forEach((b, i) => step.push(b, A.colors[i + 1]));
+  return ["case", ["==", ["typeof", ["get", v.key]], "number"], step, A.noData];
+}
+function drawAreaControls() {
+  if (!A) return;
+  const row = document.getElementById("areaRow"); row.hidden = false;
+  document.getElementById("areaTitle").textContent = A.title;
+  document.getElementById("areaNote").textContent = A.note || "";
+  const seg = document.getElementById("areaSeg");
+  if (!seg.children.length) [[null, "Off"], ...A.variables.map(v => [v.key, v.label])].forEach(([k, l]) => {
+    const b = document.createElement("button"); b.textContent = l; b.dataset.k = k ?? "";
+    b.onclick = () => { areaVar = k; drawAreaControls(); applyArea(); }; seg.appendChild(b);
+  });
+  [...seg.children].forEach(b => b.setAttribute("aria-pressed", b.dataset.k === (areaVar ?? "")));
+  const lg = document.getElementById("areaLegend");
+  if (!areaVar) { lg.innerHTML = ""; return; }
+  const br = varOf(areaVar).breaks;
+  const labels = [`< ${fmt(br[0])}`, ...br.slice(0, -1).map((b, i) => `${fmt(b)}–${fmt(br[i + 1])}`), `> ${fmt(br[br.length - 1])}`];
+  lg.innerHTML = labels.map((l, i) => `<span><span class="dot" style="border-radius:2px;background:${A.colors[i]}"></span>${l}</span>`).join("") +
+    `<span><span class="dot" style="border-radius:2px;background:${A.noData};outline:1px solid #444"></span>no data</span>`;
+}
+function applyArea() {
+  if (!A || !map.getLayer("areas-fill")) return;
+  map.setLayoutProperty("areas-fill", "visibility", areaVar ? "visible" : "none");
+  map.setLayoutProperty("areas-line", "visibility", areaVar ? "visible" : "none");
+  if (areaVar) map.setPaintProperty("areas-fill", "fill-color", areaFill());
+}
+function areaPopup(p) {
+  const first = A.variables[0].key, tot = A.totals[first];
+  let h = `<div class="pop"><b>${esc(p.name)}</b><br>`;
+  if (p[first] == null) return h + `<span class="k">No data in the source table.</span></div>`;
+  A.variables.forEach((v, i) => {
+    h += `<span class="k">${esc(v.label)}:</span> ${fmt(p[v.key])}` +
+         (i === 0 && tot ? ` <span class="k">(${(100 * p[v.key] / tot).toFixed(1)}% of total)</span>` : "") + `<br>`;
+  });
+  A.extra.forEach(k => { if (p[k] != null) h += `<span class="k">${esc(A.extraLabels[k] || k)}:</span> ${fmt(p[k])}<br>`; });
+  return h + `</div>`;
+}
+drawAreaControls();
+
+// highlighted spots of the overlay (e.g. tall trees), clickable
+const HL = O && O.highlight && O.highlight.points.length ? O.highlight : null;
+let hlOn = HL ? !!HL.default_on : false;
+if (HL) {
+  document.getElementById("hlRow").hidden = false;
+  document.getElementById("hlTitle").textContent = `${HL.label} · ${fmt(HL.points.length)} spots`;
+  document.getElementById("hlDot").style.cssText = `background:transparent;border:2px solid ${HL.color}`;
+  document.getElementById("hlNote").textContent = HL.note || "";
+  const t = document.getElementById("hlToggle"); t.checked = hlOn;
+  t.onchange = () => { hlOn = t.checked; if (map.getLayer("hl")) map.setLayoutProperty("hl", "visibility", hlOn ? "visible" : "none"); };
+}
+
+// overlay value at the record and the highest within the sample radius (computed at build time)
+const OS = O && O.sample && O.sample.sample_radius_m ? O.sample : null;
+const oval = v => `${v < 10 ? v.toFixed(1) : Math.round(v)} ${esc(O.unit)}`;
+function overPopup(r) {
+  if (!OS || r[OHERE] == null) return "";
+  const here = r[OHERE] >= O.minValue ? oval(r[OHERE]) : `none (under ${O.minValue} ${esc(O.unit)})`;
+  const near = r[ONEAR] != null && r[ONEAR] >= O.minValue ? oval(r[ONEAR]) : "none";
+  return `<br><span class="k">${esc(O.title.toLowerCase())} here:</span> ${here}` +
+         `<br><span class="k">tallest within ${OS.sample_radius_m} m:</span> ${near}`;
+}
+function drawOverStat(sel) {
+  const el = document.getElementById("overStat");
+  if (!OS) { el.innerHTML = ""; return; }
+  const vals = sel.filter(r => r[OHERE] != null);
+  if (!vals.length) { el.innerHTML = `<span class="k">No shown records inside the ${esc(O.title.toLowerCase())} layer.</span>`; return; }
+  const near = vals.filter(r => r[ONEAR] != null && r[ONEAR] >= O.minValue).map(r => r[ONEAR]).sort((a, b) => a - b);
+  const pct = 100 * near.length / vals.length, med = near.length ? near[Math.floor(near.length / 2)] : null;
+  let base = "";
+  const bi = O.baselineGroup ? S.groups.findIndex(g => g.name === O.baselineGroup) : -1;
+  if (bi >= 0 && group !== bi) {
+    const bv = R.filter(r => r[GRP] === bi && inPeriod(r) && r[OHERE] != null);
+    if (bv.length) base = `<br><span class="k">${esc(O.baselineLabel || O.baselineGroup)}:</span> ` +
+      `${(100 * bv.filter(r => r[ONEAR] != null && r[ONEAR] >= O.minValue).length / bv.length).toFixed(0)}%`;
+  }
+  el.innerHTML = `<b>${pct.toFixed(0)}%</b> of shown records are within ${OS.sample_radius_m} m of ${esc(O.title.toLowerCase())}` +
+    ` <span class="k">(${(100 * OS.area_share_ge_min_within_radius).toFixed(0)}% of the area is)</span>` + base +
+    (med != null ? `<br><span class="k">typical tallest nearby:</span> ${oval(med)}` : "") +
+    `<br><span class="k" style="font-size:11px">Points mark where the birder logged, often a road or park entrance, so this is "near trees", not "in trees". Heights are model estimates.</span>`;
+}
+
+// ---------- map ----------
+const map = new maplibregl.Map({ container: "map", style: S.basemap, bounds: S.bounds,
+  attributionControl: { compact: true } });
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+
+const features = [];
+R.forEach((r, i) => { if (r[LAT] != null) features.push({ type: "Feature",
+  geometry: { type: "Point", coordinates: [r[LON], r[LAT]] },
+  properties: { i, y: r[YEAR] ?? -1, t: r[TAX], s: r[STAT], b: r[BASIS], g: r[GRP] ?? -1, lat: r[LAT] } }); });
+
+function mapFilter() {
+  const f = ["all"];
+  if (year != null) f.push(["==", ["get", "y"], year]);
+  if (taxon != null) f.push(["==", ["get", "t"], taxon]);
+  if (group != null) f.push(["==", ["get", "g"], group]);
+  return f;
+}
+
+const applied = { filter: null, color: null };
+function update() {
+  periodButtons(); drawLollipop(); drawTop(); drawLegend();
+  document.querySelectorAll("#groupSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.k === String(group ?? "")));
+  const gn = group != null ? S.groups[group].note : "";
+  document.getElementById("groupNote").innerHTML = gn ?
+    `<span class="dot" style="background:${S.groups[group].color}"></span>${esc(gn)}` : "";
+  const sel = selected(), mapped = sel.filter(r => r[LAT] != null).length;
+  document.getElementById("counts").textContent =
+    `${fmt(sel.length)} records${taxon != null ? " of " + D.taxa[taxon] : group != null ? " of " + S.groups[group].name.toLowerCase() : ""}${year != null ? " in " + year : ""} · ` +
+    `${fmt(mapped)} on the map, ${fmt(sel.length - mapped)} without coordinates.`;
+  drawOverStat(sel);
+  if (map.getLayer("pts")) {
+    // only touch the map when something changed: each change re-processes every point
+    const f = JSON.stringify(mapFilter());
+    if (f !== applied.filter) {
+      applied.filter = f;
+      map.setFilter("pts", mapFilter());
+      S.rings.forEach(k => map.setFilter("ring" + k, mapFilter()));
+    }
+    if (colorBy !== applied.color) { applied.color = colorBy; map.setPaintProperty("pts", "circle-color", colorExpr()); }
+  }
+}
+
+function fitPadding() {
+  const p = document.querySelector(".panel"), mobile = window.innerWidth <= 640;
+  return mobile ? { top: 20, right: 20, left: 20, bottom: p.offsetHeight + 20 }
+                : { top: 30, right: 30, bottom: 30, left: p.offsetWidth + 40 };
+}
+
+map.on("load", () => {
+  map.fitBounds(S.bounds, { padding: fitPadding(), duration: 0 });
+  if (O) {
+    map.addSource("overlay", { type: "image", url: OURL, coordinates: O.coordinates });
+    map.addLayer({ id: "overlay", type: "raster", source: "overlay", layout: { visibility: overOn ? "visible" : "none" },
+      paint: { "raster-opacity": 1, "raster-fade-duration": 0 } });
+  }
+  if (A) {
+    map.addSource("areas", { type: "geojson", data: AREAS });
+    map.addLayer({ id: "areas-fill", type: "fill", source: "areas", layout: { visibility: areaVar ? "visible" : "none" },
+      paint: { "fill-color": areaVar ? areaFill() : A.noData, "fill-opacity": 0.72 } });
+    map.addLayer({ id: "areas-line", type: "line", source: "areas", layout: { visibility: areaVar ? "visible" : "none" },
+      paint: { "line-color": "#0b0b0c", "line-width": 0.8, "line-opacity": 0.7 } });
+    map.on("click", "areas-fill", e => {
+      if (map.queryRenderedFeatures(e.point, { layers: ["pts"] }).length) return;  // a record was clicked
+      new maplibregl.Popup({ maxWidth: "280px" }).setLngLat(e.lngLat).setHTML(areaPopup(e.features[0].properties)).addTo(map);
+    });
+  }
+  map.addSource("rec", { type: "geojson", data: { type: "FeatureCollection", features } });
+  if (HL) {
+    map.addSource("hl", { type: "geojson", data: { type: "FeatureCollection", features: HL.points.map(([x, y, v], i) => ({
+      type: "Feature", geometry: { type: "Point", coordinates: [x, y] }, properties: { v, rank: i + 1 } })) } });
+  }
+  S.rings.slice().sort((a, b) => b - a).forEach(k => map.addLayer({
+    id: "ring" + k, type: "circle", source: "rec", minzoom: S.ringsMinZoom, filter: mapFilter(),
+    layout: { visibility: "none" },
+    paint: { "circle-radius": ringRadius(k), "circle-color": "rgba(0,0,0,0)",
+             "circle-stroke-color": C.ring, "circle-stroke-width": k === Math.min(...S.rings) ? 1.2 : 0.8,
+             "circle-stroke-opacity": k === Math.min(...S.rings) ? 0.7 : 0.4, "circle-pitch-alignment": "map" } }));
+  map.addLayer({ id: "pts", type: "circle", source: "rec", filter: mapFilter(),
+    paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2.6, 12, 5],
+             "circle-color": colorExpr(), "circle-stroke-color": "#141518", "circle-stroke-width": 0.6,
+             "circle-opacity": 0.9 } });
+
+  if (HL) {
+    map.addLayer({ id: "hl", type: "circle", source: "hl", layout: { visibility: hlOn ? "visible" : "none" },
+      paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, ["interpolate", ["linear"], ["get", "v"], HL.min_value, 2.5, 35, 6],
+                                                                     16, ["interpolate", ["linear"], ["get", "v"], HL.min_value, 7, 35, 14]],
+               "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": HL.color, "circle-stroke-width": 1.6 } });
+    map.on("click", "hl", e => {
+      if (map.queryRenderedFeatures(e.point, { layers: ["pts"] }).length) return;  // a record was clicked
+      const p = e.features[0].properties, [x, y] = e.features[0].geometry.coordinates;
+      new maplibregl.Popup({ maxWidth: "260px" }).setLngLat([x, y]).setHTML(
+        `<div class="pop"><b>${esc(O.title)}: ${oval(p.v)}</b><br><span class="k">#${p.rank} of ${fmt(HL.points.length)} · ${y.toFixed(5)}, ${x.toFixed(5)}</span>` +
+        `<br><a href="https://www.google.com/maps/@?api=1&map_action=map&center=${y},${x}&zoom=20&basemap=satellite" target="_blank" rel="noopener">see on satellite</a></div>`).addTo(map);
+    });
+    map.on("mouseenter", "hl", () => map.getCanvas().style.cursor = "pointer");
+    map.on("mouseleave", "hl", () => map.getCanvas().style.cursor = "");
+  }
+  map.on("click", "pts", e => {
+    const r = R[e.features[0].properties.i];
+    const links = [`<a href="https://www.gbif.org/occurrence/${esc(r[GBIF])}" target="_blank" rel="noopener">GBIF record</a>`];
+    if (r[URL]) links.push(`<a href="${esc(r[URL])}" target="_blank" rel="noopener">original</a>`);
+    new maplibregl.Popup({ maxWidth: "300px" }).setLngLat(e.lngLat).setHTML(
+      `<div class="pop"><b><i>${esc(D.taxa[r[TAX]])}</i></b><br>
+       <span class="k">${esc(S.groups.length ? (S.groups[r[GRP]] || {}).name || "" : D.status[r[STAT]])}</span><br>
+       ${r[DATE] ? esc(r[DATE]) : (r[YEAR] ?? "date unknown")}${D.place[r[PLACE]] ? " · " + esc(D.place[r[PLACE]]) : ""}<br>
+       <span class="k">${esc(prettyBasis(D.basis[r[BASIS]]))} · ${esc(D.source[r[SRC]])}</span>
+       ${D.people[r[WHO]] ? `<br><span class="k">recorded by</span> ${esc(D.people[r[WHO]])}` : ""}
+       ${r[UNC] ? `<br><span class="k">location ± ${fmt(Math.round(r[UNC]))} m</span>` : ""}
+       ${overPopup(r)}
+       <br>${links.join(" · ")}</div>`).addTo(map);
+  });
+  map.on("mouseenter", "pts", () => map.getCanvas().style.cursor = "pointer");
+  map.on("mouseleave", "pts", () => map.getCanvas().style.cursor = "");
+  update();
+  statusEl.textContent = `${fmt(R.length)} records · ${fmt(features.length)} with coordinates`;
+});
+window.addEventListener("resize", () => drawLollipop());
+} catch (e) { showError(e); }
+</script>
+</body>
+</html>

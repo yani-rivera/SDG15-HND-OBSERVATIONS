@@ -1,0 +1,12 @@
+# data stays out of the code repo: GBIF downloads are cited by DOI and shared on Zenodo
+data/*
+!data/README.md
+# build output (each run gets its own folder; publish_dir copies the page to the site repo)
+outputs/
+# local clutter
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+*.tif
+*.tiff

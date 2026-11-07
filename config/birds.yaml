@@ -1,0 +1,87 @@
+# gbif_companion — Tegucigalpa birds (Day 11 "Sound" companion)
+
+run:
+  output_dir: outputs/birds
+
+gbif:
+  file: data/0021590-260928105237408.csv
+  download_key: "0021590-260928105237408"
+  # FILL IN from the download page on gbif.org (it shows the citation with its DOI)
+  citation: "GBIF.org (2026) GBIF Occurrence Download 0021590-260928105237408 (DOI: to be added)"
+  doi: null
+  filter:
+    class: [Aves]
+  keep_only_groups: true          # map only the five groups; totals still use ALL birds
+  max_uncertainty_m: null
+
+# Groups: a record joins the first group whose match fits (any listed value).
+groups:
+  - name: "Parrots & parakeets"
+    color: "#7ddc6a"
+    match: {family: [Psittacidae]}
+    note: "They eat in the trees: seeds, fruit and flowers (figs, mangos, flowering trees), and sleep together in tall trees. Most records are White-fronted Parrots and Orange-chinned Parakeets."
+  - name: "Zanates"
+    color: "#a99bff"
+    match: {species: [Quiscalus mexicanus]}
+    note: "They eat almost anything, mostly on the ground: insects, seeds, scraps. At dusk they gather by the hundreds in the trees of parks and plazas, the loud evening chorus."
+  - name: "Woodpeckers"
+    color: "#ff6b5a"
+    match: {family: [Picidae]}
+    note: "They need trees: they drill bark for insects, nest in holes they carve, and also eat fruit and nectar. Most records are Golden-fronted Woodpeckers."
+  - name: "Owls"
+    color: "#f5b301"
+    match: {family: [Strigidae, Tytonidae]}
+    note: "The birds you hear but never hear coming: soft-edged feathers make their flight almost silent. Most owl records (about 93%) are the Ferruginous Pygmy-Owl, a tiny owl that also hunts by day, calls a long 'toot-toot-toot' from the trees and eats insects, lizards and small birds. Barn owls nest in buildings and hunt rats over open ground at night."
+  - name: "Doves"
+    color: "#e9e3d6"
+    match: {family: [Columbidae]}
+    note: "Mostly seed-eaters that feed on the ground (lawns, streets, empty lots), so they can live almost anywhere; they still need trees or shrubs to nest and sleep. That makes them a good baseline for the canopy numbers."
+
+taxa:
+  top_n: 10
+  footnotes: {}
+
+map:
+  title: "What I Still Like to Hear"
+  subtitle: "Parakeets, zanates, woodpeckers, owls and doves in Tegucigalpa, from GBIF (mostly eBird)."
+  data_note: >-
+    Recent years look small because eBird shares its data with GBIF in yearly batches.
+    Night owls are under-recorded (few people bird at night) and eBird hides locations of some
+    sensitive species. Records show where birders went, not every bird that sings.
+  call_to_action: "Hear a bird? Merlin can tell you who it is; save it in an eBird checklist (Merlin alone stays on your phone) or photograph it for iNaturalist, and it reaches GBIF and this map. Days with no parakeets count too."
+  totals_label: "all bird records"
+  default_year: null
+  quick_years: []
+  rings_km: []
+  colors:
+    native: "#7ddc6a"
+    introduced: "#e9e3d6"
+    other: "#9aa0a6"
+    ring: "#7ddc6a"
+    accent: "#7ddc6a"
+  basemap: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+  basemap_attribution: "© CARTO, © OpenStreetMap contributors"
+  bounds: [[-87.31, 13.99], [-87.09, 14.16]]
+  credit: "Map and data curation: Yanira A. Rivera. Interactive companion built with AI-assisted code."
+
+# Optional raster overlay drawn under the records
+overlay:
+  title: "Tree canopy"
+  file: data/tgucanopy202611.tiff        # raw heights (m), 10 m, EPSG:32616, exported from QGIS
+  unit: "m"
+  min_value: 1                           # below this: transparent (no canopy)
+  stretch: [0, 25]                       # same stretch as the Day 11 poster
+  colors: ["#234f2f", "#2f7042", "#3f9255", "#55b56a"]
+  opacity: 0.9
+  default_on: true
+  baseline_group: "Doves"                # compare each group with the birds that live everywhere
+  baseline_label: "Doves, the seed-eaters that live everywhere"
+  highlight:                             # tall trees: local highs, clickable, for checking on imagery or in the field
+    label: "Tall trees (20 m or more)"
+    min_value: 20
+    min_separation_m: 30
+    color: "#ffffff"
+    default_on: false
+    note: "Single 10 m cells from a model: a tall building or tower can look like a tree. Check on satellite imagery or in person."
+  sample_radius_m: 50                    # popups show canopy at the record and the tallest within 50 m
+  source: "Meta and World Resources Institute (WRI) (2026), Version 2 High Resolution Canopy Height Maps (CHMv2), resampled to 10 m. Source imagery © 2016 Vantor. CC BY 4.0. Accessed November 2026 from https://registry.opendata.aws/dataforgood-fb-forestsv2. Paper: CHMv2: Improvements in Global Canopy Height Mapping using DINOv3, arXiv:2603.06382"
