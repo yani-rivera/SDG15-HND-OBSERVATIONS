@@ -10,6 +10,16 @@ from pathlib import Path
 from . import __project__, __version__
 
 
+def public_path(path) -> str:
+    """A path as it may appear in the published provenance.json.
+
+    Relative paths are kept as written. An absolute or home (~) path would publish the
+    folder names of the computer that built the page (often a user name), so only its
+    file name is kept."""
+    p = Path(str(path))
+    return str(path) if not (p.is_absolute() or str(path).startswith("~")) else p.name
+
+
 def sha256(path) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -33,9 +43,16 @@ class Run:
             "config_sha256": sha256(cfg["_path"]),
             "started_utc": datetime.now(timezone.utc).isoformat(),
             "environment": {"python": sys.version.split()[0], "platform": platform.platform()},
-            "input": {"file": g["file"], "sha256": sha256(g["file"]),
+            "input": {"file": public_path(g["file"]), "sha256": sha256(g["file"]),
                       "gbif_download_key": g.get("download_key"), "gbif_doi": g.get("doi"),
-                      "citation": g["citation"]},
+                      "citation": g["citation"],
+                      "source": cfg["_source"]["kind"], "source_name": cfg["_source"]["name"],
+                      "columns": cfg["_columns"]},
+            "credits": cfg["_credits"],
+            "page": {"theme": cfg["_theme"]["name"], "locale": cfg["map"]["locale"],
+                     "basemap": cfg["map"]["basemap"], "allowed_hosts": cfg["map"]["_hosts"]},
+            "config_notes": cfg.get("_notes", []),
+            "contrast_notes": cfg.get("_contrast", []),
             "steps": [],
         }
         self.save()

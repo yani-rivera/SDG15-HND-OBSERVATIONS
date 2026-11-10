@@ -1,5 +1,5 @@
 # gbif_companion — "Don't Tell the Bees" (Day 1 companion)
-# Copy this file to make a companion for any other GBIF download.
+# For a map of your own (another country, another group of species), start from config/template.yaml.
 
 run:
   output_dir: outputs/bees
@@ -15,9 +15,9 @@ gbif:
   # Citation GBIF asks for. CONFIRM the DOI matches this download key.
   citation: "GBIF.org (27 October 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.2kgdqn"
   doi: "https://doi.org/10.15468/dl.2kgdqn"
+  country: HN                   # two-letter country code: keeps only this country's records
   filter:                       # optional: keep only these values
     family: [Apidae]
-    countryCode: [HN]
   max_uncertainty_m: null       # e.g. 10000 to hide very imprecise points; null = keep all (flagged in checks)
 
 taxa:
@@ -39,17 +39,39 @@ map:
   quick_years: [2026]           # shortcut buttons
   rings_km: [3, 7]              # foraging-distance rings (illustrative: many native bees forage closer)
   rings_minzoom: 8              # rings appear when zoomed in, so they don't merge into a glow
-  colors:
+  theme: dark                   # background: dark or light (panel, chart, popups and base map)
+  colors:                       # "#rrggbb"; the build reports colours that are hard to see on the theme
+    accent: "#f5b301"           # title, buttons, chart
     native: "#f5b301"
     introduced: "#f3efe6"
     other: "#9aa0a6"
     ring: "#f5b301"
-    accent: "#f5b301"
-  # OpenFreeMap: no API key, no registration (MIT; data © OpenStreetMap contributors)
-  basemap: "https://tiles.openfreemap.org/styles/dark"
-  basemap_attribution: "OpenFreeMap, © OpenMapTiles, © OpenStreetMap contributors"
-  bounds: [[-89.5, 12.9], [-83.0, 17.5]]   # Honduras incl. Bay and Swan Islands
-  credit: "Map and data curation: Yanira A. Rivera. Bee records licensed CC BY-NC 4.0 (the GBIF download's licence). Interactive companion built with AI-assisted code."
+    # basis: ["#f5b301", "#7cc6fe", "#e86f5a", "#b48ef0", "#9aa0a6"]   # record-type colours, in order
+  # Base map: OpenFreeMap (no API key, no registration), dark or positron to match the theme,
+  # credited on the map. To use another one, set basemap, basemap_attribution and, if it loads
+  # from more than one host, basemap_hosts (see config/template.yaml).
+  bounds: [[-89.5, 12.9], [-83.0, 17.5]]   # Honduras incl. Bay and Swan Islands; or "auto" to fit the records
+  locale: en-US                 # number and month format
+
+# Who made the map and under which licences: shown under Sources and copied into provenance.json
+credits:
+  author: "Yanira A. Rivera"
+  # author_url: "https://orcid.org/0000-0003-3309-5256"     # optional link on the author's name
+  records_licence: "CC BY-NC 4.0"        # the GBIF download's licence
+  # map_licence: "CC BY 4.0"                                # optional: licence of the map page itself
+  # acknowledgements: ""                                    # optional: people and organisations to thank
+  notes: "Interactive companion built with AI-assisted code."
+
+# Wording of the panel and legends: any text can be replaced (gbifc/labels.py lists them all)
+labels:
+  rings_title: "Foraging rings"
+  rings_note: "Illustrative: honey bees often fly 3 km or more; many native bees, like stingless bees, stay much closer."
+
+# Legend of record types: rename, explain (shown on hover) or colour any GBIF record type
+# legend:
+#   record_types:
+#     PRESERVED_SPECIMEN: {label: "Museum specimen"}
+#     HUMAN_OBSERVATION: {label: "Observation", color: "#f5b301"}
 
 # Optional area layer drawn under the records
 areas:

@@ -1,10 +1,10 @@
 {
-  "run_id": "20261107T155410Z",
+  "run_id": "20261110T213252Z",
   "project": "gbif_companion",
-  "script_version": "0.4.1",
+  "script_version": "0.5.0",
   "config": "bees.yaml",
-  "config_sha256": "0ebafb5cdf257e5ee27bbe7b8f5c92956b74634b3639f9bf723d10cbfd903bca",
-  "started_utc": "2026-11-07T15:54:10.950409+00:00",
+  "config_sha256": "a457a8f76d13821e3df39b2e6a902dc0b91ca4301694f22a13bf874d2dd9221d",
+  "started_utc": "2026-11-10T21:32:52.795507+00:00",
   "environment": {
     "python": "3.13.5",
     "platform": "macOS-27.2-arm64-arm-64bit-Mach-O"
@@ -14,12 +14,33 @@
     "sha256": "48b5b996cb4ab7f53231a769598be6691252f78d4069d9c0e25308b0e76002a8",
     "gbif_download_key": "0009936-261023074918325",
     "gbif_doi": "https://doi.org/10.15468/dl.2kgdqn",
-    "citation": "GBIF.org (27 October 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.2kgdqn"
+    "citation": "GBIF.org (27 October 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.2kgdqn",
+    "source": "gbif",
+    "source_name": null,
+    "columns": {}
   },
+  "credits": {
+    "author": "Yanira A. Rivera",
+    "author_url": null,
+    "records_licence": "CC BY-NC 4.0",
+    "map_licence": null,
+    "acknowledgements": null,
+    "notes": "Interactive companion built with AI-assisted code."
+  },
+  "page": {
+    "theme": "dark",
+    "locale": "en-US",
+    "basemap": "https://tiles.openfreemap.org/styles/dark",
+    "allowed_hosts": [
+      "https://tiles.openfreemap.org"
+    ]
+  },
+  "config_notes": [],
+  "contrast_notes": [],
   "steps": [
     {
       "step": "read",
-      "finished_utc": "2026-11-07T15:54:10.982498+00:00",
+      "finished_utc": "2026-11-10T21:32:52.824660+00:00",
       "rows": 3491,
       "filtered_out": 0,
       "outside_groups": 0,
@@ -27,7 +48,7 @@
     },
     {
       "step": "checks",
-      "finished_utc": "2026-11-07T15:54:10.983998+00:00",
+      "finished_utc": "2026-11-10T21:32:52.826265+00:00",
       "records": 3491,
       "no_coordinates": 696,
       "no_year": 990,
@@ -44,24 +65,28 @@
     },
     {
       "step": "areas",
-      "finished_utc": "2026-11-07T15:54:11.964475+00:00",
+      "finished_utc": "2026-11-10T21:32:53.865539+00:00",
       "features": 18,
       "totals": {
         "produccion_litros": 845016.0,
         "promedio_litros_por_explotacion": 4458.3,
         "explotaciones": 2959.0
       },
-      "issues": 1
+      "issues": 1,
+      "geojson": "data/HND_ADM01.geojson",
+      "geojson_sha256": "4acd5d551825000bb9c8b07ca5af09b9b0264f93eaebc46371057a1c65d4ec4a",
+      "table": "data/honey_ine_2023_2024.csv",
+      "table_sha256": "f5fb086d74c7ec949db66421863e3e2583f82bdceafa4e47d07a8f52967cb549"
     },
     {
       "step": "map",
-      "finished_utc": "2026-11-07T15:54:11.979070+00:00",
+      "finished_utc": "2026-11-10T21:32:53.881233+00:00",
       "output": "map.html",
-      "size_mb": 0.66
+      "size_mb": 0.67
     },
     {
       "step": "publish",
-      "finished_utc": "2026-11-07T15:54:11.979168+00:00",
+      "finished_utc": "2026-11-10T21:32:53.881325+00:00",
       "site_dir": "bees"
     }
   ]

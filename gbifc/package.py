@@ -21,20 +21,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import __project__, __version__
-from .gbif import taxon_label
+from .gbif import open_table, taxon_label
 from .provenance import sha256
 from .taxa import status_of
 
 
 def _raw_rows(path: Path):
-    """All rows and columns of a GBIF download, untouched (tab-separated simple CSV or comma CSV)."""
-    with path.open(encoding="utf-8-sig", newline="") as f:
-        header = f.readline()
-    with path.open(encoding="utf-8-sig", newline="") as f:
-        if "\t" in header:
-            rd = csv.DictReader(f, delimiter="\t", quoting=csv.QUOTE_NONE)
-        else:
-            rd = csv.DictReader(f)
+    """All rows and columns of the records file, untouched (whatever its separator)."""
+    f, rd = open_table(path)
+    with f:
         return rd.fieldnames, list(rd)
 
 

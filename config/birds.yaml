@@ -9,9 +9,9 @@ run:
 gbif:
   file: data/0021590-260928105237408.csv
   download_key: "0021590-260928105237408"
-  # FILL IN from the download page on gbif.org (it shows the citation with its DOI)
-  citation: "GBIF.org (2026) GBIF Occurrence Download 0021590-260928105237408 (DOI: to be added)"
-  doi: null
+  # Citation GBIF asks for, as shown on the download's page (293,909 occurrences, 12 datasets)
+  citation: "GBIF.org (12 October 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.s23z73"
+  doi: "https://doi.org/10.15468/dl.s23z73"
   filter:
     class: [Aves]
   keep_only_groups: true          # map only the five groups; totals still use ALL birds
@@ -52,21 +52,36 @@ map:
     Night owls are under-recorded (few people bird at night) and eBird hides locations of some
     sensitive species. Records show where birders went, not every bird that sings.
   call_to_action: "Hear a bird? Merlin can tell you who it is; save it in an eBird checklist (Merlin alone stays on your phone) or photograph it for iNaturalist, and it reaches GBIF and this map. Days with no parakeets count too."
-  totals_label: "all bird records"
   default_year: null
   quick_years: []
   rings_km: []
-  colors:
+  theme: dark                   # background: dark or light (panel, chart, popups and base map)
+  colors:                       # "#rrggbb"; the build reports colours that are hard to see on the theme
+    accent: "#7ddc6a"           # title, buttons, chart
     native: "#7ddc6a"
     introduced: "#e9e3d6"
     other: "#9aa0a6"
     ring: "#7ddc6a"
-    accent: "#7ddc6a"
-  # OpenFreeMap: no API key, no registration (MIT; data © OpenStreetMap contributors)
-  basemap: "https://tiles.openfreemap.org/styles/dark"
-  basemap_attribution: "OpenFreeMap, © OpenMapTiles, © OpenStreetMap contributors"
-  bounds: [[-87.31, 13.99], [-87.09, 14.16]]
-  credit: "Map and data curation: Yanira A. Rivera. Interactive companion built with AI-assisted code."
+  # Base map: OpenFreeMap (no API key, no registration), dark or positron to match the theme,
+  # credited on the map. See config/template.yaml to use another one.
+  bounds: [[-87.31, 13.99], [-87.09, 14.16]]   # or "auto" to fit the records
+  locale: en-US
+
+# Who made the map and under which licences: shown under Sources and copied into provenance.json
+credits:
+  author: "Yanira A. Rivera"
+  # author_url: "https://orcid.org/0000-0003-3309-5256"     # optional link on the author's name
+  records_licence: "CC BY-NC 4.0"        # the GBIF download's licence
+  # map_licence: "CC BY 4.0"                                # optional: licence of the map page itself
+  # acknowledgements: ""                                    # optional: people and organisations to thank
+  notes: "Interactive companion built with AI-assisted code."
+
+# Wording of the panel and legends: any text can be replaced (gbifc/labels.py lists them all)
+labels:
+  totals: "all bird records"
+  overlay_near: "tallest within {radius} m:"
+  overlay_typical: "typical tallest nearby:"
+  overlay_note: "Points mark where the birder logged, often a road or park entrance, so this is \"near trees\", not \"in trees\". Heights are model estimates."
 
 # Optional raster overlay drawn under the records
 overlay:

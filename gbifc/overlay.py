@@ -48,7 +48,7 @@ def build_overlay(ocfg: dict) -> tuple[dict, dict]:
     img = np.dstack([rgb, alpha]).astype("uint8")
 
     buf = io.BytesIO()
-    Image.fromarray(img, "RGBA").save(buf, format="PNG", optimize=True)
+    Image.fromarray(img).save(buf, format="PNG", optimize=True)   # (h, w, 4) uint8 = RGBA
     left, bottom, right, top = transform_bounds(dst_crs, "EPSG:4326",
                                                 tr.c, tr.f + tr.e * h, tr.c + tr.a * w, tr.f)
     page = {

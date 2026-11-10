@@ -1,0 +1,127 @@
+# gbif_companion — starter config for a map of your own
+#
+# 1. On gbif.org, search occurrences for your country and group (e.g. Country: Costa Rica,
+#    Scientific name: Trochilidae), download as "Simple" CSV, and unzip it into data/.
+# 2. Copy this file (e.g. config/hummingbirds.yaml) and fill in the lines marked CHANGE.
+# 3. python build.py --config config/hummingbirds.yaml
+#
+# Everything not marked CHANGE is optional and shows its default.
+# Records that are not from GBIF (your own survey, a museum export): see "source" and "columns" below.
+
+run:
+  output_dir: outputs/my_map          # each build gets its own dated folder here
+  # publish_dir: my_map               # also copy the finished page here as index.html (e.g. for GitHub Pages)
+
+gbif:
+  file: data/0000000-000000000000000.csv            # CHANGE: your download (keep the path relative)
+  download_key: "0000000-000000000000000"           # CHANGE
+  # CHANGE: the citation and DOI shown on your download's page on gbif.org
+  citation: "GBIF.org (1 January 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.xxxxxx"
+  doi: "https://doi.org/10.15468/dl.xxxxxx"
+  country: CR                         # CHANGE: two-letter country code (ISO 3166-1); remove for no country limit
+  # filter:                           # optional: keep only records with these values (any GBIF column)
+  #   family: [Trochilidae]
+  max_uncertainty_m: null             # e.g. 10000 hides points located worse than 10 km; null keeps all
+
+# Records that are NOT from GBIF. The gbif: section above still names the file and how to cite it
+# (it can also be written records:); these two sections say how to read it.
+# source:
+#   kind: other                       # no gbif.org links, no DOI expected
+#   name: "My field survey 2026"
+#   record_link:                      # optional: a link per record, {id} is replaced by the record's id
+#     url: "https://example.org/records/{id}"
+#     text: "record"
+# columns:                            # GBIF field name: your file's column name (only those that differ)
+#   decimalLatitude: lat              # required
+#   decimalLongitude: lon             # required
+#   species: scientific_name          # required
+#   gbifID: record_id                 # the id used in record_link
+#   eventDate: date                   # 2026-05-17; year and month are taken from it when the file has none
+#   genus: genus
+#   family: family
+#   recordedBy: observer
+#   locality: site
+#   stateProvince: department
+#   basisOfRecord: record_type        # e.g. HUMAN_OBSERVATION, PRESERVED_SPECIMEN
+#   institutionCode: institution
+#   coordinateUncertaintyInMeters: precision_m
+# The file can be comma-, semicolon- or tab-separated. gbif.country needs a countryCode column.
+
+# Who made the map and under which licences: shown under Sources and copied into provenance.json.
+credits:
+  author: "Your Name"                 # CHANGE
+  # author_url: "https://orcid.org/0000-0000-0000-0000"     # optional link on your name
+  records_licence: "CC BY-NC 4.0"     # CHANGE: the licence on your GBIF download's page (CC0 1.0, CC BY 4.0 or CC BY-NC 4.0)
+  # map_licence: "CC BY 4.0"          # optional: licence of the map page itself
+  # acknowledgements: ""              # optional: people and organisations to thank
+  # notes: ""                         # optional: anything else, e.g. how the map was made
+
+# Give EITHER a native-status rule (taxa.default) OR groups, or both.
+taxa:
+  default: "Native"                   # status of every taxon not listed below; check status_review.csv after a build
+  status: {}                          # e.g. "Apis mellifera": "Introduced"   (species first, then genus)
+  introduced_words: ["Introduced"]    # a status starting with one of these is drawn in the "introduced" colour
+  footnotes: {}                       # e.g. "Genus species": "Identification not verified"
+  top_n: 10                           # rows in the "most recorded" table
+
+# groups:                             # optional: one colour and one button per group
+#   - name: "Hermits"
+#     color: "#7ddc6a"
+#     match: {genus: [Phaethornis, Glaucis]}      # a record joins the first group whose match fits
+#     note: "Shown under the buttons when the group is selected."
+
+map:
+  title: "My map title"               # CHANGE
+  subtitle: "One sentence on what the records are. Records show where people looked, not where species live."
+  call_to_action: ""                  # e.g. how visitors can add observations
+  data_note: ""                       # a caveat shown under the subtitle
+
+  theme: dark                         # background: dark or light (panel, chart, popups and base map)
+  colors:                             # all "#rrggbb"; leave any out to use the theme's default
+    accent: "#f5b301"                 # title, buttons, chart
+    native: "#f5b301"                 # points, when coloured by native status
+    introduced: "#f3efe6"
+    other: "#9aa0a6"                  # not identified to genus; records outside every group
+    ring: "#f5b301"
+    # basis: ["#f5b301", "#7cc6fe", "#e86f5a", "#b48ef0", "#9aa0a6"]   # record-type colours, in order
+  # theme_colors:                     # optional: change single colours of the theme
+  #   panel: "#101820"                # also: bg, ink, muted, line, button, popup, tip, point_outline, no_data …
+
+  bounds: auto                        # fit the records; or [[west, south], [east, north]] in degrees
+  locale: en-US                       # number and month format, e.g. es-CR, pt-BR, fr-FR
+  default_year: null                  # open on one year, or null for all years
+  quick_years: []                     # shortcut buttons, e.g. [2025, 2026]
+  rings_km: []                        # distance rings around each record, e.g. [3, 7]
+  rings_minzoom: 8
+
+  # Base map. Default: OpenFreeMap (no key, no registration), dark or positron to match the theme.
+  # For another one, give all three: the page shows this credit on the map, and its security
+  # policy only lets the map load from the hosts listed here.
+  # basemap: "https://tiles.example.org/styles/my-style.json"
+  # basemap_attribution:
+  #   - {text: "© Example Tiles", url: "https://example.org/"}
+  #   - {text: "© OpenStreetMap contributors", url: "https://www.openstreetmap.org/copyright"}
+  # basemap_hosts: ["fonts.example.org"]     # other hosts the style loads tiles, fonts or icons from
+
+# Wording: any text of the panel, popups and legends can be replaced, for another subject or
+# language. gbifc/labels.py lists every label with its default. A few examples in Spanish:
+# labels:
+#   period: "Periodo"
+#   all_years: "Todos los años"
+#   top_title: "Especies más registradas"
+#   color_by: "Color según"
+#   by_basis: "Tipo de registro"
+#   record_one: "registro"
+#   record_many: "registros"
+#   counts: "{n} {records}{what}{when} · {mapped} en el mapa, {unmapped} sin coordenadas."
+#   sources: "Fuentes"
+
+# Legend of record types (GBIF basisOfRecord): rename, explain (shown on hover) or colour them.
+# legend:
+#   record_types:
+#     PRESERVED_SPECIMEN: {label: "Museum specimen", hint: "A specimen kept in a collection."}
+#     HUMAN_OBSERVATION: {label: "Observation", color: "#f5b301"}
+
+# Optional layers, as in the two maps of this repository:
+#   areas:   a table of values per region drawn under the records  → see config/bees.yaml
+#   overlay: a raster (e.g. tree canopy) drawn under the records    → see config/birds.yaml

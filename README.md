@@ -6,29 +6,23 @@ empty area means unrecorded, not absent.
 
 **Maps:** https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/
 - *Don't Tell the Bees*: https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/bees/
+- *What I Still Like to Hear*: https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/birds/
 
 
-**Version 0.4.1** (2026-11-07) · see [CHANGELOG.md](CHANGELOG.md) · `python build.py --version`
+**Version 0.5.0** (2026-11-10) · see [CHANGELOG.md](CHANGELOG.md) · `python build.py --version`
 
 Interactive companion maps from **any GBIF occurrence download**. One config per map:
 
 - `config/bees.yaml`: *Don't Tell the Bees* (#30DayMapChallenge 2026, Day 1), with native status
   and foraging rings.
+- `config/birds.yaml`: *What I Still Like to Hear* (Day 11), Tegucigalpa's parakeets, zanates,
+  woodpeckers, owls and doves over the tree canopy.
+- `config/template.yaml`: a starter config for a map of your own, in any country.
 
 
 ## Ai assistance
 The challenge entries are the hand-made posters; these pages were built with AI-assisted code and
 say so.
-=======
-- **Code:** [SDG15-HND-OBSERVATIONS](https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS), config
-  `config/bees.yaml`. `provenance.json` here records the exact code version, config hash and input
-  SHA-256 used for this page.
-- **Data:** GBIF.org (27 October 2026) GBIF Occurrence Download
-  https://doi.org/10.15468/dl.2kgdqn (3,491 records from 43 datasets). Honey: Instituto Nacional
-  de Estadística con información del Censo Agropecuario Nacional (CAN), año agrícola 2023-2024.
-  Departments: SINIT (2016) via OCHA HDX. Records and honey table archived with notes on Zenodo:
-  *[data DOI, added once published]*.
->>>>>>> a3966ee139d2df4a753e86656de7dc7ce7516d15
 
 ## Three separate parts
 
@@ -73,9 +67,31 @@ columns, comma-separated), `source_datasets.csv` (records and licences per GBIF 
 `taxa_status.csv`, the area table, and `package_provenance.json`. Add a hand-written `README.md`
 (method, caveats, licences) before uploading it to Zenodo.
 
-For your own region or taxon: download occurrences from gbif.org (the "simple" CSV works; a
-Darwin Core Archive's `occurrence.txt` too), copy `config/bees.yaml`, change `gbif.file`, the
-citation/DOI, the filter, the status table, title and bounds, and build.
+## Make it yours: another country, other colours, another language
+
+Download occurrences from gbif.org (the "simple" CSV works; a Darwin Core Archive's
+`occurrence.txt` too), copy `config/template.yaml`, fill in the lines marked CHANGE, and build.
+Everything else is optional:
+
+| To change | Set in the config | Notes |
+|---|---|---|
+| Country | `gbif.country: CR` | two-letter code; keeps only that country's records |
+| Records not from GBIF | `source.kind: other` | your own survey or a museum export: no gbif.org links, no DOI expected; optional link per record and licence text |
+| Other column names | `columns:` | e.g. `decimalLatitude: lat`; the file can be comma-, semicolon- or tab-separated |
+| Opening view | `map.bounds: auto` | fits the records; or give `[[west, south], [east, north]]` |
+| Background | `map.theme: dark` or `light` | panel, chart, popups and a matching base map |
+| Colours | `map.colors:` | `accent`, `native`, `introduced`, `other`, `ring`, and `basis` (record types); `"#rrggbb"` |
+| Single theme colours | `map.theme_colors:` | e.g. `panel`, `ink`, `point_outline` |
+| Credits and licences | `credits:` | author, licence of the records, licence of the map, thanks, notes; shown under Sources and saved in `provenance.json` |
+| Wording, titles, language | `labels:` | every text of the panel, popups and legends; `gbifc/labels.py` lists them |
+| Record-type legend | `legend.record_types:` | name, hover explanation and colour per GBIF record type |
+| Numbers and months | `map.locale: es-HN` | e.g. 3.491 instead of 3,491; ene, feb, mar |
+| Base map | `map.basemap`, `basemap_attribution`, `basemap_hosts` | default: OpenFreeMap, no key needed |
+
+The build checks every value before it writes the page: a colour that is not `#rrggbb`, a link
+that is not `https://`, an unknown label or a mistyped option is reported by name. It also warns
+when a colour will be hard to see on the chosen background (for example pale points on the light
+theme) and records those notes in `provenance.json`.
 
 ## What the page does
 
@@ -83,7 +99,8 @@ citation/DOI, the filter, the status table, title and bounds, and build.
   Hover a stem for the count and the **top source collection** that year; click to filter.
 - **Most recorded species** for the selected period, with native status, footnotes and a tie note.
   Click a species to map only it.
-- **Colour by** native status or record type (museum specimen, human observation, …).
+- **Colour by** native status or record type (museum specimen, human observation, …). Hover a
+  record type in the legend for what it means.
 - **Foraging rings** (3 and 7 km by default) drawn at true ground distance, shown from zoom 8.
 - **Record popups:** taxon, status, date, place, record type, collection, observer, location
   uncertainty, links to the GBIF record and the original (e.g. iNaturalist).
@@ -116,7 +133,7 @@ citation/DOI, the filter, the status table, title and bounds, and build.
 |---|---|
 | `map.html` | the page (one file; needs internet for MapLibre and the OpenFreeMap base map) |
 | `<config>.yaml` | exact config used |
-| `provenance.json` | versions, config hash, input SHA-256, GBIF download key, DOI, citation, checks |
+| `provenance.json` | versions, config hash, SHA-256 of every input, GBIF download key, DOI, citation, checks, theme, the hosts the page may load from, config and colour notes |
 | `status_review.csv` | every taxon whose native status came from the default rule, for review |
 
 ## Notes for the bee map
@@ -140,7 +157,7 @@ citation/DOI, the filter, the status table, title and bounds, and build.
 
 - Input: GBIF download `0021590-260928105237408`: all birds (class Aves) in a box around
   Tegucigalpa, 293,909 records, 1898–2026, ~99% eBird. Five groups kept: 107,265 records.
-  **Add the download's DOI** to `config/birds.yaml` (shown on its gbif.org page).
+  Cite it as GBIF.org (12 October 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.s23z73
 - The 158 MB download is not in the zip: put it in `data/` with its original name.
 - 2025–2026 look small because eBird reaches GBIF in yearly batches. Owls are under-recorded.
 - 40,716 "possible duplicates" are expected for eBird: several birders logging the same bird at the
@@ -159,6 +176,12 @@ citation/DOI, the filter, the status table, title and bounds, and build.
 - Parrots and parakeets rise from about 5% of all bird records in January to about 8% in
   June–July (all years pooled).
 
+## Security
+
+Each page carries a security policy that lets the browser run only the page's own script and the
+pinned MapLibre file, and load only from the base map's host; record text and config values are
+escaped and checked. [SECURITY.md](SECURITY.md) has the details and how to report a problem.
+
 ## Licences
 
 - **Code:** MIT (`LICENSE`). Cite it with `CITATION.cff` or the Zenodo DOI of the release.
@@ -175,9 +198,17 @@ citation/DOI, the filter, the status table, title and bounds, and build.
 build.py                CLI
 config/bees.yaml        one config per companion map
 config/birds.yaml
-gbifc/config.py         load + validate config
+config/template.yaml    starter config for a map of your own
+gbifc/config.py         load the config, fill in defaults, check every value
+gbifc/validate.py       the checks: colours, numbers, links, hosts, bounds
+gbifc/theme.py          dark / light theme, colours, contrast notes
+gbifc/labels.py         every text of the page with its default; record types
+gbifc/credits.py        the credits section: author, licences, thanks
+gbifc/inputs.py         input files a config needs; clear message when one is missing
+gbifc/extent.py         opening view from the records (map.bounds: auto)
+gbifc/csp.py            the page's security policy
 gbifc/provenance.py     run folder + provenance.json
-gbifc/gbif.py           read GBIF simple CSV / occurrence.txt
+gbifc/gbif.py           read the records: GBIF download or any table (columns: mapping)
 gbifc/taxa.py           native status lookup (species → genus → default), review list
 gbifc/checks.py         record-quality summary
 gbifc/areas.py          optional area layer: boundaries + table joined by code, checks

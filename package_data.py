@@ -10,6 +10,7 @@ import argparse
 from gbifc import __project__, __version__, gbif
 from gbifc.config import load_config
 from gbifc.package import make_package
+from gbifc.validate import ConfigError
 
 
 def main():
@@ -18,10 +19,14 @@ def main():
     ap.add_argument("--out", required=True, help="output folder, outside this repository")
     args = ap.parse_args()
 
-    cfg = load_config(args.config)
+    try:
+        cfg = load_config(args.config)
+    except ConfigError as e:
+        raise SystemExit(f"config error: {e}") from None
     records, _ = gbif.read_occurrences(
         cfg["gbif"]["file"], cfg["gbif"].get("filter"),
-        groups=cfg["groups"], keep_only_groups=cfg["gbif"].get("keep_only_groups", False))
+        groups=cfg["groups"], keep_only_groups=cfg["gbif"].get("keep_only_groups", False),
+        columns=cfg["_columns"], dates_from_event=cfg["_source"]["kind"] != "gbif")
     prov = make_package(cfg, records, args.out)
     print(f"{args.out}: {prov['records_csv']['rows']} records, {prov['source_datasets']} source datasets"
           + (f", {prov['taxa']} taxa" if "taxa" in prov else "")

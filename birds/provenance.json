@@ -1,0 +1,126 @@
+{
+  "run_id": "20261110T213556Z",
+  "project": "gbif_companion",
+  "script_version": "0.5.0",
+  "config": "birds.yaml",
+  "config_sha256": "920845a1fb976d952266619d0bf33d465702bf79d20110293156433980ac9f8e",
+  "started_utc": "2026-11-10T21:35:56.335581+00:00",
+  "environment": {
+    "python": "3.13.5",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O"
+  },
+  "input": {
+    "file": "data/0021590-260928105237408.csv",
+    "sha256": "ef640aeba4ead495c43005ab031bbd031673c6bac4a12510bb3f09952cd382ca",
+    "gbif_download_key": "0021590-260928105237408",
+    "gbif_doi": "https://doi.org/10.15468/dl.s23z73",
+    "citation": "GBIF.org (12 October 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.s23z73",
+    "source": "gbif",
+    "source_name": null,
+    "columns": {}
+  },
+  "credits": {
+    "author": "Yanira A. Rivera",
+    "author_url": null,
+    "records_licence": "CC BY-NC 4.0",
+    "map_licence": null,
+    "acknowledgements": null,
+    "notes": "Interactive companion built with AI-assisted code."
+  },
+  "page": {
+    "theme": "dark",
+    "locale": "en-US",
+    "basemap": "https://tiles.openfreemap.org/styles/dark",
+    "allowed_hosts": [
+      "https://tiles.openfreemap.org"
+    ]
+  },
+  "config_notes": [],
+  "contrast_notes": [],
+  "steps": [
+    {
+      "step": "read",
+      "finished_utc": "2026-11-10T21:35:57.861759+00:00",
+      "rows": 293909,
+      "filtered_out": 0,
+      "outside_groups": 186644,
+      "kept": 107265
+    },
+    {
+      "step": "checks",
+      "finished_utc": "2026-11-10T21:35:57.972918+00:00",
+      "records": 107265,
+      "no_coordinates": 0,
+      "no_year": 0,
+      "uncertainty_over_10km": 18,
+      "hidden_by_max_uncertainty": 0,
+      "possible_duplicates": 40716,
+      "by_basis": {
+        "HUMAN_OBSERVATION": 107235,
+        "PRESERVED_SPECIMEN": 30
+      },
+      "by_group": {
+        "Parrots & parakeets": 19012,
+        "Zanates": 15505,
+        "Woodpeckers": 16957,
+        "Owls": 6983,
+        "Doves": 48808
+      }
+    },
+    {
+      "step": "overlay",
+      "finished_utc": "2026-11-10T21:35:58.251794+00:00",
+      "file": "data/tgucanopy202611.tiff",
+      "sha256": "a416f5af5dabed185eba48e7150e077fb9e91490698265092d19b6b040b29b5b",
+      "source_crs": "EPSG:32616",
+      "source_resolution": [
+        9.999,
+        9.999
+      ],
+      "source_size": [
+        1352,
+        1464
+      ],
+      "web_size": [
+        1349,
+        1469
+      ],
+      "share_at_or_above_min": 0.1588,
+      "max_value": 44.0,
+      "png_kb": 740.0,
+      "bounds_wgs84": [
+        -87.26318,
+        14.02625,
+        -87.1378,
+        14.15868
+      ]
+    },
+    {
+      "step": "overlay_highlight",
+      "finished_utc": "2026-11-10T21:36:04.123748+00:00",
+      "peaks": 932,
+      "highlight_min": 20,
+      "area_ha_at_or_above": 20.5,
+      "max": 44.0
+    },
+    {
+      "step": "overlay_sample",
+      "finished_utc": "2026-11-10T21:36:04.378397+00:00",
+      "sample_radius_m": 50.0,
+      "records_inside_raster": 99506,
+      "share_with_value_ge_min_within_radius": 0.8734,
+      "area_share_ge_min_within_radius": 0.5778
+    },
+    {
+      "step": "map",
+      "finished_utc": "2026-11-10T21:36:04.738878+00:00",
+      "output": "map.html",
+      "size_mb": 10.49
+    },
+    {
+      "step": "publish",
+      "finished_utc": "2026-11-10T21:36:04.739057+00:00",
+      "site_dir": "birds"
+    }
+  ]
+}
