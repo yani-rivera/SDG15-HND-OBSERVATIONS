@@ -1,0 +1,15 @@
+{
+  "title": "SDG15-HND-OBSERVATIONS: interactive maps of biodiversity observations in Honduras from GBIF downloads (gbif_companion)",
+  "upload_type": "software",
+  "description": "Interactive maps of biodiversity observations in Honduras (SDG 15, Life on land), built from GBIF occurrence downloads with gbif_companion. The maps show where species have been recorded, which is where people looked: an empty area means unrecorded, not absent. One config per map sets the data, theme (light or dark), colours, country, wording and credits; every build records its provenance. Maps: Don't Tell the Bees (bees of Honduras, with honey production by department) and What I Still Like to Hear (birds of Tegucigalpa over the tree canopy).",
+  "license": "MIT",
+  "creators": [
+    {"name": "Rivera, Yanira A.", "orcid": "0000-0003-3309-5256"},
+    {"name": "Claude (Anthropic)"}
+  ],
+  "keywords": [
+    "GBIF", "biodiversity observations", "interactive map", "MapLibre", "Honduras",
+    "Tegucigalpa", "bees", "birds", "pollinators", "tree canopy", "SDG 15",
+    "life on land", "open data", "provenance", "reproducibility"
+  ]
+}
