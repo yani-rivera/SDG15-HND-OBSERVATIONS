@@ -1,0 +1,106 @@
+# Light-theme trial of the birds map: builds into outputs/birds_light only, nothing is published.
+# gbif_companion — Tegucigalpa birds (Day 11 "Sound" companion)
+
+run:
+  output_dir: outputs/birds_light
+  # Each map has its own folder (bees/, birds/); the birds are served by GitHub Pages at
+  # https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/birds/ (created on the first build).
+
+gbif:
+  file: data/0021590-260928105237408.csv
+  download_key: "0021590-260928105237408"
+  # Citation GBIF asks for, as shown on the download's page (293,909 occurrences, 12 datasets)
+  citation: "GBIF.org (12 October 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.s23z73"
+  doi: "https://doi.org/10.15468/dl.s23z73"
+  filter:
+    class: [Aves]
+  keep_only_groups: true          # map only the five groups; totals still use ALL birds
+  max_uncertainty_m: null
+
+# Groups: a record joins the first group whose match fits (any listed value).
+groups:
+  - name: "Parrots & parakeets"
+    color: "#2e8b3d"
+    match: {family: [Psittacidae]}
+    note: "They eat in the trees: seeds, fruit and flowers (figs, mangos, flowering trees), and sleep together in tall trees. Most records are White-fronted Parrots and Orange-chinned Parakeets."
+  - name: "Zanates"
+    color: "#5b45d6"
+    match: {species: [Quiscalus mexicanus]}
+    note: "They eat almost anything, mostly on the ground: insects, seeds, scraps. At dusk they gather by the hundreds in the trees of parks and plazas, the loud evening chorus."
+  - name: "Woodpeckers"
+    color: "#d1432f"
+    match: {family: [Picidae]}
+    note: "They need trees: they drill bark for insects, nest in holes they carve, and also eat fruit and nectar. Most records are Golden-fronted Woodpeckers."
+  - name: "Owls"
+    color: "#b97800"
+    match: {family: [Strigidae, Tytonidae]}
+    note: "The birds you hear but never hear coming: soft-edged feathers make their flight almost silent. Most owl records (about 93%) are the Ferruginous Pygmy-Owl, a tiny owl that also hunts by day, calls a long 'toot-toot-toot' from the trees and eats insects, lizards and small birds. Barn owls nest in buildings and hunt rats over open ground at night."
+  - name: "Doves"
+    color: "#6b6258"
+    match: {family: [Columbidae]}
+    note: "Mostly seed-eaters that feed on the ground (lawns, streets, empty lots), so they can live almost anywhere; they still need trees or shrubs to nest and sleep. That makes them a good baseline for the canopy numbers."
+
+taxa:
+  top_n: 10
+  footnotes: {}
+
+map:
+  title: "What I Still Like to Hear"
+  subtitle: "Parakeets, zanates, woodpeckers, owls and doves in Tegucigalpa, from GBIF (mostly eBird)."
+  data_note: >-
+    Recent years look small because eBird shares its data with GBIF in yearly batches.
+    Night owls are under-recorded (few people bird at night) and eBird hides locations of some
+    sensitive species. Records show where birders went, not every bird that sings.
+  call_to_action: "Hear a bird? Merlin can tell you who it is; save it in an eBird checklist (Merlin alone stays on your phone) or photograph it for iNaturalist, and it reaches GBIF and this map. Days with no parakeets count too."
+  default_year: null
+  quick_years: []
+  rings_km: []
+  theme: light                  # background: dark or light (panel, chart, popups and base map)
+  colors:                       # "#rrggbb"; the build reports colours that are hard to see on the theme
+    accent: "#2e7d32"           # title, buttons, chart
+    native: "#2e7d32"
+    introduced: "#6b6258"
+    other: "#8a8f98"
+    ring: "#2e7d32"
+  # Base map: OpenFreeMap (no API key, no registration), dark or positron to match the theme,
+  # credited on the map. See config/template.yaml to use another one.
+  bounds: [[-87.31, 13.99], [-87.09, 14.16]]   # or "auto" to fit the records
+  locale: en-US
+
+# Who made the map and under which licences: shown under Sources and copied into provenance.json
+credits:
+  author: "Yanira A. Rivera"
+  # author_url: "https://orcid.org/0000-0003-3309-5256"     # optional link on the author's name
+  records_licence: "CC BY-NC 4.0"        # the GBIF download's licence
+  # map_licence: "CC BY 4.0"                                # optional: licence of the map page itself
+  # acknowledgements: ""                                    # optional: people and organisations to thank
+  notes: "Interactive companion built with AI-assisted code."
+
+# Wording of the panel and legends: any text can be replaced (gbifc/labels.py lists them all)
+labels:
+  totals: "all bird records"
+  overlay_near: "tallest within {radius} m:"
+  overlay_typical: "typical tallest nearby:"
+  overlay_note: "Points mark where the birder logged, often a road or park entrance, so this is \"near trees\", not \"in trees\". Heights are model estimates."
+
+# Optional raster overlay drawn under the records
+overlay:
+  title: "Tree canopy"
+  file: data/tgucanopy202611.tiff        # raw heights (m), 10 m, EPSG:32616, exported from QGIS
+  unit: "m"
+  min_value: 1                           # below this: transparent (no canopy)
+  stretch: [0, 25]                       # same stretch as the Day 11 poster
+  colors: ["#cfe8cf", "#9fd3a2", "#62b46d", "#2f8a45"]
+  opacity: 0.9
+  default_on: true
+  baseline_group: "Doves"                # compare each group with the birds that live everywhere
+  baseline_label: "Doves, the seed-eaters that live everywhere"
+  highlight:                             # tall trees: local highs, clickable, for checking on imagery or in the field
+    label: "Tall trees (20 m or more)"
+    min_value: 20
+    min_separation_m: 30
+    color: "#14401f"
+    default_on: false
+    note: "Single 10 m cells from a model: a tall building or tower can look like a tree. Check on satellite imagery or in person."
+  sample_radius_m: 50                    # popups show canopy at the record and the tallest within 50 m
+  source: "Meta and World Resources Institute (WRI) (2026), Version 2 High Resolution Canopy Height Maps (CHMv2), clipped to Tegucigalpa and resampled to 10 m by Yanira A. Rivera. Source imagery © 2016 Vantor. CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Accessed November 2026 from https://registry.opendata.aws/dataforgood-fb-forestsv2. Paper: CHMv2: Improvements in Global Canopy Height Mapping using DINOv3, arXiv:2603.06382"

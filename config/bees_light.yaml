@@ -1,0 +1,102 @@
+# Light-theme trial of the bees map: builds into outputs/bees_light only, nothing is published.
+# gbif_companion — "Don't Tell the Bees" (Day 1 companion)
+# For a map of your own (another country, another group of species), start from config/template.yaml.
+
+run:
+  output_dir: outputs/bees_light
+  # Optional: copy the finished page into its folder, served by GitHub Pages at
+  # https://yani-rivera.github.io/SDG15-HND-OBSERVATIONS/bees/ (created on the first build).
+  # Remove the line to build without publishing.
+
+gbif:
+  # GBIF "simple" download (tab-separated, even when named .csv) or a DwC-A occurrence.txt
+  file: data/0009936-261023074918325.csv
+  download_key: "0009936-261023074918325"
+  # Citation GBIF asks for. CONFIRM the DOI matches this download key.
+  citation: "GBIF.org (27 October 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.2kgdqn"
+  doi: "https://doi.org/10.15468/dl.2kgdqn"
+  country: HN                   # two-letter country code: keeps only this country's records
+  filter:                       # optional: keep only these values
+    family: [Apidae]
+  max_uncertainty_m: null       # e.g. 10000 to hide very imprecise points; null = keep all (flagged in checks)
+
+taxa:
+  # Native status. Anything not listed gets `default`; review status_review.csv after a build.
+  default: "Native"
+  status:
+    "Apis mellifera": "Introduced (Africanized)"
+    "Apis mellifera scutellata": "Introduced (Africanized)"
+    "Apis": "Introduced (Africanized)"      # genus-level Apis records in Honduras
+  footnotes:
+    "Eulaema cingulata": "Identification not verified"
+  top_n: 10
+
+map:
+  title: "Don't Tell the Bees"
+  subtitle: "Every bee record in Honduras on GBIF. Records show where people looked, not where bees live."
+  call_to_action: "Saw a bee in Honduras? Upload a photo to iNaturalist: it reaches GBIF and fills a gap on this map."
+  default_year: null            # null = all years; e.g. 2026 to open on the Day 1 poster view
+  quick_years: [2026]           # shortcut buttons
+  rings_km: [3, 7]              # foraging-distance rings (illustrative: many native bees forage closer)
+  rings_minzoom: 8              # rings appear when zoomed in, so they don't merge into a glow
+  theme: light                  # background: dark or light (panel, chart, popups and base map)
+  colors:                       # "#rrggbb"; the build reports colours that are hard to see on the theme
+    accent: "#8a5a00"           # title, buttons, chart
+    native: "#a86f00"
+    introduced: "#3d4651"
+    other: "#8a8f98"
+    ring: "#a86f00"
+    # basis: ["#f5b301", "#7cc6fe", "#e86f5a", "#b48ef0", "#9aa0a6"]   # record-type colours, in order
+  # Base map: OpenFreeMap (no API key, no registration), dark or positron to match the theme,
+  # credited on the map. To use another one, set basemap, basemap_attribution and, if it loads
+  # from more than one host, basemap_hosts (see config/template.yaml).
+  bounds: [[-89.5, 12.9], [-83.0, 17.5]]   # Honduras incl. Bay and Swan Islands; or "auto" to fit the records
+  locale: en-US                 # number and month format
+
+# Who made the map and under which licences: shown under Sources and copied into provenance.json
+credits:
+  author: "Yanira A. Rivera"
+  # author_url: "https://orcid.org/0000-0003-3309-5256"     # optional link on the author's name
+  records_licence: "CC BY-NC 4.0"        # the GBIF download's licence
+  # map_licence: "CC BY 4.0"                                # optional: licence of the map page itself
+  # acknowledgements: ""                                    # optional: people and organisations to thank
+  notes: "Interactive companion built with AI-assisted code."
+
+# Wording of the panel and legends: any text can be replaced (gbifc/labels.py lists them all)
+labels:
+  rings_title: "Foraging rings"
+  rings_note: "Illustrative: honey bees often fly 3 km or more; many native bees, like stingless bees, stay much closer."
+
+# Legend of record types: rename, explain (shown on hover) or colour any GBIF record type
+# legend:
+#   record_types:
+#     PRESERVED_SPECIMEN: {label: "Museum specimen"}
+#     HUMAN_OBSERVATION: {label: "Observation", color: "#f5b301"}
+
+# Optional area layer drawn under the records
+areas:
+  title: "Honey production"
+  source: "Instituto Nacional de Estadística con información del Censo Agropecuario Nacional (CAN), año agrícola 2023-2024"
+  note: "Islas de la Bahía has no row in the INE table. Litres, as reported by INE."
+  geojson: data/HND_ADM01.geojson          # SINIT 2016 departments via OCHA HDX
+  geojson_source: "Departments: SINIT (2016) via OCHA HDX"
+  id_field: ADM1_PCODE
+  label_field: ADM1_ES
+  simplify_deg: 0.003                      # about 300 m
+  table: data/honey_ine_2023_2024.csv
+  table_id: adm1_pcode
+  table_label: departamento
+  extra_fields: [explotaciones]
+  extra_labels: {explotaciones: "Farms (explotaciones)"}
+  check_totals: {explotaciones: 2959, produccion_litros: 845015.9}
+  default: produccion_litros               # or null to start with the layer off
+  variables:
+    - key: produccion_litros
+      label: "Honey (litres)"
+      breaks: [10000, 30000, 60000, 100000]
+    - key: promedio_litros_por_explotacion
+      label: "Litres per farm"
+      breaks: [50, 100, 200, 500]
+  colors: ["#fff3d1", "#ffdf8a", "#f5c242", "#d99a0b", "#a56d00"]
+  no_data_color: "#e3e1dc"
+  name_overrides: {"11": "Islas de la Bahía"}
